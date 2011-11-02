@@ -21,7 +21,6 @@
 #include <map>
 #include <ifaddrs.h>
 #include <iterator>
-
 #include "packet-sieve.h"
 #include "definitions.h"
 #include "functions.h"
@@ -34,19 +33,19 @@ int main(int argc, char **argv)
         dev = argv[1];
     }
     
-     printf("Welcome to our packet sniffer!\nYou are sniffing on %s\nPlease type train to train, followed by ass_conn\n", dev);
+    printf("Welcome to our packet sniffer!\nYou are sniffing on %s\nPlease type train to train, followed by ass_conn\n", dev);
+    get_ip();
     
     while(!term_flag){
         printf(">> ");
         cin >> input;
         if (input == "train"){
-            cout << "you typed train\n";
+            fill_packet_sieve();
         }
         if (input == "ass_conn"){
-            cout << "you typed ass_conn";
-            get_packets();
+            select_packets();
         }
     }
-
+    
     return 0;
 }

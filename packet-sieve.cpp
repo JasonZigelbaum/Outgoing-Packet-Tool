@@ -12,7 +12,6 @@
 #include <ctype.h>
 #include <netdb.h>
 
-
 #include "packet-sieve.h"
 
 using namespace std;

@@ -8,7 +8,7 @@ EXECUTABLE2	=
 #		(NOTE: Don't include header (.h) files, or source files
 #		that contain function template or class template member
 #		function definitions.)
-CMPL_SRCS1	= engine.cpp
+CMPL_SRCS1	= engine.cpp packet-sieve.cpp
 CMPL_SRCS2	= 
 
 #               Source files containing *only* function template or class 

@@ -29,23 +29,23 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    if (argc == 2) {
-        dev = argv[1];
+  if (argc == 2) {
+    dev = argv[1];
+  }
+    
+  printf("Welcome to our packet sniffer!\nYou are sniffing on %s\nPlease type train to train, followed by ass_conn\n", dev);
+  get_ip();
+    
+  while(!term_flag){
+    printf(">> ");
+    cin >> input;
+    if (input == "train"){
+      fill_packet_sieve();
     }
-    
-    printf("Welcome to our packet sniffer!\nYou are sniffing on %s\nPlease type train to train, followed by ass_conn\n", dev);
-    get_ip();
-    
-    while(!term_flag){
-        printf(">> ");
-        cin >> input;
-        if (input == "train"){
-            fill_packet_sieve();
-        }
-        if (input == "ass_conn"){
-            select_packets();
-        }
+    if (input == "ass_conn"){
+      select_packets();
     }
+  }
     
-    return 0;
+  return 0;
 }

@@ -9,12 +9,12 @@ using namespace std;
 #include <netdb.h>
 
 // Map type used to detect unordinary traffic.
-typedef std::map<std::string, bool> AddressMap;
+typedef std::map<std::string, int> AddressMap;
 
 class PacketSieve {
 public:
   AddressMap normal_hosts_;
-  vector<string> suspects_;
+  AddressMap suspect_hosts_;
   bool check_host(std::string host);
 
   void print_suspects();

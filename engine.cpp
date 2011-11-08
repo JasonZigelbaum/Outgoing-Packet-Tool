@@ -45,6 +45,9 @@ int main(int argc, char **argv)
     if (input == "ass_conn"){
       select_packets();
     }
+	if (input == "quit"){
+      term_flag = 1;
+    }
   }
     
   return 0;

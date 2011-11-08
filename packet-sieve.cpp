@@ -43,7 +43,7 @@ void PacketSieve::print_suspects() {
 
   AddressMap::iterator iter;
   for (iter = suspect_hosts_.begin(); iter != suspect_hosts_.end(); ++iter) {
-    std::cout << "\t" << iter->first << " " << reverse_dns(iter->first)
+    std::cout << iter->first << " " << reverse_dns(iter->first)
               << " " << iter->second << std::endl;
   }
 }

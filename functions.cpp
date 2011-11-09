@@ -32,16 +32,11 @@ void get_ip(void) {
   struct ifaddrs * ifa=NULL;
   void * tmpAddrPtr=NULL;
   getifaddrs(&ifAddrStruct);
-  std::cout << "Getting ip." << std::endl;
   for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next) {
-    std::cout << "Looping." << std::endl;
   if (ifa ->ifa_addr->sa_family==AF_INET) { // check it is IP4
       // is a valid IP4 Address
-    std::cout << "what up" << std::endl;
       tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
-    std::cout << "what up1" << std::endl;
       const char* retval = inet_ntop(AF_INET, tmpAddrPtr, tmpIpAddress, INET_ADDRSTRLEN);
-    std::cout << "what up2" << std::endl;
       if (!retval) {
 	std::cout << "Error converting numeric address." << std::endl;
       }

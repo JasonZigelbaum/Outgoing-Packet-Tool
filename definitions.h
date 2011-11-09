@@ -7,26 +7,14 @@
 #ifndef libpcapTest_definitions_h
 #define libpcapTest_definitions_h
 
+#include "globals.h"
+
 /* <<< Parsing Globals >>> */
 using namespace std;
 
-int term_flag = 0;
-string input;
-char* dev;
-
-/* <<< User's IP Address >>> */
-
-char ip_address[INET_ADDRSTRLEN];
-
-/* <<< Packet Capture Handle >>> */
-
-pcap_t *handle;
-int num_packets = 100;
-struct bpf_program fp;          /* compiled filter program (expression) */
 
 /* <<< Packet Seieve >>> */
 
-PacketSieve sieve;
 
 /* <<< TCP STRUCTS >>> */
 

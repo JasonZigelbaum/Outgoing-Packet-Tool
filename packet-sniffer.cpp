@@ -18,16 +18,25 @@
 #include "globals.h"
 #include "packet-sieve.h"
 #include "definitions.h"
-#include "functions.h"
+#include "packet-sniffer.h"
 #include "packet-sieve.h"
 
-PacketSieve* sieve;
+char tmpIpAddress[INET_ADDRSTRLEN];
+char* dev;
 
-    char tmpIpAddress[INET_ADDRSTRLEN];
+// Using singleton design pattern.
+PacketSniffer* PacketSniffer::instance_ = NULL;
+
+PacketSniffer* PacketSniffer::instance() {
+   if (instance_ == NULL) {
+      instance_ = new PacketSniffer();
+   }
+   return instance_;
+}
 
 
 /* <<< Get user's IP address >>> */
-void get_ip(void) {
+void PacketSniffer::get_ip(void) {
   struct ifaddrs * ifAddrStruct=NULL;
   struct ifaddrs * ifa=NULL;
   void * tmpAddrPtr=NULL;
@@ -48,7 +57,7 @@ void get_ip(void) {
 
 /* <<< print help text >>> */
 
-void print_app_usage(void) {
+void PacketSniffer::print_app_usage(void) {
     
   printf("Usage: packet_sniffer [interface]\n");
   printf("\n");
@@ -61,28 +70,29 @@ void print_app_usage(void) {
 
 /* <<< Get Handle >>> */
 
-void get_handle(void) {
+void PacketSniffer::get_handle(void) {
     
   char errbuf[PCAP_ERRBUF_SIZE];      /* error buffer */
     
   bpf_u_int32 mask;           /* subnet mask */
   bpf_u_int32 net;            /* ip */
     
+    std::cout << "Dev: " << (void *) dev << std::endl;
   /* check for capture device name on command-line */
-  if (!dev) {
-    /* find a capture device if not specified on command-line */
+ 
     dev = pcap_lookupdev(errbuf);
     if (dev == NULL) {
       fprintf(stderr, "Couldn't find default device: %s\n",
-	      errbuf);
-      exit(EXIT_FAILURE);
-    }
+    	      errbuf);
+     
+   
+    std::cout << "Dev: " << (void *) dev << std::endl;
     string wifi = "wlan0";
+    dev = new char[1000];
     strcpy(dev, wifi.c_str());
     std::cout << "Device chosen: " << dev << std::endl;
-        
-  }
-  std::cout << "here1" << std::endl;
+    }     
+    //}
   /* get network number and mask associated with capture device */
   if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
     fprintf(stderr, "Couldn't get netmask for device %s: %s\n",
@@ -90,11 +100,9 @@ void get_handle(void) {
     net = 0;
     mask = 0;
   }
-  std::cout << "here2" <<std::endl;
   // We only want to capture outgoing packets, so we must find the local
   // IP address for use with a source filter.
   get_ip();
-  std::cout << "here3" <<std::endl;
   std::stringstream filter_stream;
   filter_stream << "ip src host ";
   filter_stream << tmpIpAddress;
@@ -373,15 +381,16 @@ void got_packet(u_char * args, const struct pcap_pkthdr *,
   // Insert packet into map keyed by destination address.  Later,
   // we will check to see if we've communicated with this host before
   // by checking the map for its address.
+  std::cout << "Here." << std::endl;
   sieve->normal_hosts_.insert(std::pair<std::string, bool>
 			      (inet_ntoa(ip->ip_dst), 1));
     
-    
+  std::cout << "Inserted into sieve." << std::endl;
   return;
     
 }
 
-void fill_packet_sieve(void) {
+void PacketSniffer::fill_packet_sieve(void) {
     
   get_handle();
     
@@ -389,15 +398,16 @@ void fill_packet_sieve(void) {
      this will also fill our packet sieve for the proceeding loop.
   */
   sieve = new PacketSieve();
-  pcap_loop(handle, num_packets, got_packet, (u_char*) &sieve);
+  pcap_loop(handle, 0, got_packet, (u_char*) sieve);
+  std::cout << "LOOP BROKEN" << std::endl;
 }
 
-void select_packets(void) {
+void PacketSniffer::select_packets(void) {
     
   // We are done training our packet engine, now lets loop, fire up the
   // target application, and try to find out what is might be.
   if (handle) {
-    pcap_loop(handle, num_packets, handle_target_packet, (u_char*) sieve);
+    pcap_dispatch(handle, num_packets, handle_target_packet, (u_char*) sieve);
     sieve->print_suspects();
     term_sniffer();
   } else {
@@ -406,7 +416,7 @@ void select_packets(void) {
 
 }
 
-void term_sniffer(void) {
+void PacketSniffer::term_sniffer(void) {
     
   /* cleanup */
   pcap_freecode(&fp);

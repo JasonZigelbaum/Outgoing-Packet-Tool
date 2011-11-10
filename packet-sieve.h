@@ -5,8 +5,10 @@
 #include <vector>
 #include <map>
 
-using namespace std;
 #include <netdb.h>
+#include "packet-sieve.h"
+
+using namespace std;
 
 // Map type used to detect unordinary traffic.
 typedef std::map<std::string, int> AddressMap;

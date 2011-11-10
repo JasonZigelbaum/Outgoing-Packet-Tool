@@ -21,22 +21,22 @@
 #include <map>
 #include <ifaddrs.h>
 #include <iterator>
+#include "globals.h"
 #include "packet-sieve.h"
 #include "definitions.h"
-#include "functions.h"
+#include "packet-sniffer.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
   if (argc == 2) {
-    dev = argv[1];
+    //dev = argv[1];
   }
     
-  printf("Welcome to our packet sniffer!\nYou are sniffing on %s\nPlease type train to train, followed by ass_conn\n", dev);
-  get_ip();
+  //printf("Welcome to our packet sniffer!\nYou are sniffing on %s\nPlease type train to train, followed by ass_conn\n", dev);
     
-  while(!term_flag){
+  while(true){
     printf(">> ");
     cin >> input;
     if (input == "train"){

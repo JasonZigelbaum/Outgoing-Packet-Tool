@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include "globals.h"
 #include "write-dialog.h"
 
 using namespace std;
@@ -20,7 +21,7 @@ WriteDialog::WriteDialog() {
 
 void WriteDialog::writeRecord(std::string record) {
   ofstream outdata; // outdata is like cin
-  outdata.open("/Users/Jason/Desktop/host-test", ios::app); // opens the file in append mode
+  outdata.open(HOSTS_FILE.c_str(), ios::app); // opens the file in append mode
   if( !outdata ) { // file couldn't be opened
      cerr << "Error: file could not be opened" << endl;
   }

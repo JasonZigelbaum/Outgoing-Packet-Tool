@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include "globals.h"
 #include "delete-dialog.h"
 
 using namespace std;
@@ -22,7 +23,7 @@ void DeleteDialog::deleteRecord(std::string record) {
   vector<string> file;
   string temp;
 
-  ifstream infile("/Users/Jason/Desktop/host-test");
+  ifstream infile(HOSTS_FILE.c_str());
 
   while( !infile.eof() )
   {
@@ -45,7 +46,7 @@ void DeleteDialog::deleteRecord(std::string record) {
   }
 
   //write new order list back out
-  ofstream out("/Users/Jason/Desktop/host-test", ios::out | ios::trunc);
+  ofstream out(HOSTS_FILE.c_str(), ios::out | ios::trunc);
   
   for(vector<string>::const_iterator i = file.begin(); i != file.end(); ++i)
   {

@@ -25,3 +25,4 @@ char ip_address[INET_ADDRSTRLEN];
 int num_packets = 100;
 struct bpf_program fp;          /* compiled filter program (expression) */
 
+std::string HOSTS_FILE = "./hosts";

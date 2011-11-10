@@ -16,6 +16,6 @@ extern char* ip_address;
 extern int num_packets;
 extern struct bpf_program fp;          /* compiled filter program (expression) */
 
-
+extern std::string HOSTS_FILE;
 
 #endif

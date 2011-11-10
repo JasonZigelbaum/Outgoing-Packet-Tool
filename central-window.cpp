@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "functions.h"
+#include "train-dialog.h"
 
 int columns = 2;
 int rows = 10;
@@ -35,5 +36,6 @@ CentralWindow::CentralWindow()
 
 void CentralWindow::train() {
   std::cout << "Training." << std::endl;
-  fill_packet_sieve();
+  TrainDialog dialog;
+  dialog.exec();
 }

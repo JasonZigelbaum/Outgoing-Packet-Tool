@@ -9,7 +9,7 @@ INCLUDEPATH += .
 
 # Input
 
-HEADERS += main-window.h central-window.h functions.h packet-sieve.h
-SOURCES += globals.cpp main-window.cpp central-window.cpp main.cpp functions.cpp packet-sieve.cpp
+HEADERS += main-window.h central-window.h functions.h packet-sieve.h train-dialog.h
+SOURCES += globals.cpp main-window.cpp central-window.cpp main.cpp functions.cpp packet-sieve.cpp train-dialog.cpp
 RESOURCES = application.qrc
 LIBS += -ldl -lpcap

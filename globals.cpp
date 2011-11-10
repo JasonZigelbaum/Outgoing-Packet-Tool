@@ -15,7 +15,6 @@
 const bool DEBUG = false;
 const int term_flag = 0;
 std::string input;
-char* dev;
 
 /* <<< User's IP Address >>> */
 

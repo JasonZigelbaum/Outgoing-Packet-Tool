@@ -6,7 +6,6 @@
 extern const bool DEBUG;
 extern int term_flag;
 extern std::string input;
-extern char* dev;
 
 /* <<< User's IP Address >>> */
 

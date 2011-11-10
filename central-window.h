@@ -20,11 +20,15 @@ class CentralWindow : public QWidget {
   CentralWindow();
   public slots:
   void train();
+  void writePrompt();
+  void deletePrompt();
   void addItem(std::string s);
 
  private:
   QPushButton* beginButton;
   QPushButton* trainButton;
+  QPushButton* writeButton;
+  QPushButton* deleteButton;
   QListView* listView;
   QStandardItemModel * listModel;
 

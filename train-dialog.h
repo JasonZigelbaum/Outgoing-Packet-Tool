@@ -21,7 +21,7 @@ class TrainDialog : public QDialog
 {
   Q_OBJECT
 
-    public:
+ public:
   TrainDialog();
   public slots:
   void beginTraining();

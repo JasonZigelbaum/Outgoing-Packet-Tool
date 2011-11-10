@@ -48,7 +48,6 @@ void TrainDialog::timerFired() {
 
 void TrainDialog::doneAssessing() {
       pcap_breakloop(PacketSniffer::instance()->handle);
-
 }
 
 void TrainDialog::handleFinished() {
@@ -58,7 +57,7 @@ void TrainDialog::handleFinished() {
     progressBar->setVisible(false);
     layout->removeWidget(progressBar);
     continueButton = new QPushButton("Continue");
-connect(continueButton, SIGNAL(clicked()), this, SLOT(doneAssessing()));
+    connect(continueButton, SIGNAL(clicked()), this, SLOT(doneAssessing()));
     layout->addWidget(continueButton);
       QFuture<void> future = QtConcurrent::run(assess);
 }
@@ -66,6 +65,8 @@ connect(continueButton, SIGNAL(clicked()), this, SLOT(doneAssessing()));
 void train() {
   PacketSniffer::instance()->fill_packet_sieve();
 }
+
+// Should probably have a "get candidates method" to put candidates into a unique QT widget for writing to the hosts file...
 
 void assess() {
   PacketSniffer::instance()->select_packets();

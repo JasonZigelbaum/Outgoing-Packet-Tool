@@ -22,7 +22,6 @@ MainWindow::MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->accept();
-
 }
 
 

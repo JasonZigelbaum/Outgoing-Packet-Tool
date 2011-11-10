@@ -24,7 +24,7 @@
 #include "globals.h"
 #include "packet-sieve.h"
 #include "definitions.h"
-#include "functions.h"
+#include "packet-sniffer.h"
 
 using namespace std;
 

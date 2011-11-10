@@ -22,7 +22,6 @@ char ip_address[INET_ADDRSTRLEN];
 
 /* <<< Packet Capture Handle >>> */
 
-pcap_t *handle;
 int num_packets = 100;
 struct bpf_program fp;          /* compiled filter program (expression) */
 

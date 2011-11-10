@@ -18,16 +18,25 @@
 #include "globals.h"
 #include "packet-sieve.h"
 #include "definitions.h"
-#include "functions.h"
+#include "packet-sniffer.h"
 #include "packet-sieve.h"
-
-PacketSieve* sieve;
 
 char tmpIpAddress[INET_ADDRSTRLEN];
 char* dev;
 
+// Using singleton design pattern.
+PacketSniffer* PacketSniffer::instance_ = NULL;
+
+PacketSniffer* PacketSniffer::instance() {
+   if (instance_ == NULL) {
+      instance_ = new PacketSniffer();
+   }
+   return instance_;
+}
+
+
 /* <<< Get user's IP address >>> */
-void get_ip(void) {
+void PacketSniffer::get_ip(void) {
   struct ifaddrs * ifAddrStruct=NULL;
   struct ifaddrs * ifa=NULL;
   void * tmpAddrPtr=NULL;
@@ -48,7 +57,7 @@ void get_ip(void) {
 
 /* <<< print help text >>> */
 
-void print_app_usage(void) {
+void PacketSniffer::print_app_usage(void) {
     
   printf("Usage: packet_sniffer [interface]\n");
   printf("\n");
@@ -61,7 +70,7 @@ void print_app_usage(void) {
 
 /* <<< Get Handle >>> */
 
-void get_handle(void) {
+void PacketSniffer::get_handle(void) {
     
   char errbuf[PCAP_ERRBUF_SIZE];      /* error buffer */
     
@@ -381,7 +390,7 @@ void got_packet(u_char * args, const struct pcap_pkthdr *,
     
 }
 
-void fill_packet_sieve(void) {
+void PacketSniffer::fill_packet_sieve(void) {
     
   get_handle();
     
@@ -390,9 +399,10 @@ void fill_packet_sieve(void) {
   */
   sieve = new PacketSieve();
   pcap_loop(handle, 0, got_packet, (u_char*) sieve);
+  std::cout << "LOOP BROKEN" << std::endl;
 }
 
-void select_packets(void) {
+void PacketSniffer::select_packets(void) {
     
   // We are done training our packet engine, now lets loop, fire up the
   // target application, and try to find out what is might be.
@@ -406,7 +416,7 @@ void select_packets(void) {
 
 }
 
-void term_sniffer(void) {
+void PacketSniffer::term_sniffer(void) {
     
   /* cleanup */
   pcap_freecode(&fp);

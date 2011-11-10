@@ -3,7 +3,6 @@
 #include "central-window.h"
 #include <iostream>
 
-#include "functions.h"
 #include "train-dialog.h"
 
 int columns = 2;

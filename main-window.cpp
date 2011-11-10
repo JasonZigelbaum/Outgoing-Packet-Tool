@@ -3,6 +3,16 @@
 #include "main-window.h"
 #include "central-window.h"
 
+// Using singleton design pattern.
+MainWindow* MainWindow::instance_ = NULL;
+
+MainWindow* MainWindow::instance() {
+   if (instance_ == NULL) {
+      instance_ = new MainWindow();
+   }
+   return instance_;
+}
+
 MainWindow::MainWindow()
 {
   centralWindow = new CentralWindow(); 
@@ -66,8 +76,3 @@ void MainWindow::createStatusBar()
   statusBar()->showMessage(tr("Ready"));
 }
 
-
-QString MainWindow::strippedName(const QString &fullFileName)
-{
-  return QFileInfo(fullFileName).fileName();
-}

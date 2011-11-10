@@ -48,6 +48,15 @@ void TrainDialog::timerFired() {
 
 void TrainDialog::doneAssessing() {
       pcap_breakloop(PacketSniffer::instance()->handle);
+      done(0);
+  AddressMap::iterator iter;
+  PacketSieve* sieve = PacketSniffer::instance()->sieve;
+  std::cout << "From dialog: " << std::endl;
+  for (iter = sieve->suspect_hosts_.begin();
+       iter != sieve->suspect_hosts_.end(); ++iter) {
+    std::cout << iter->first << " " << sieve->reverse_dns(iter->first)
+              << " " << iter->second << std::endl;
+  }
 }
 
 void TrainDialog::handleFinished() {

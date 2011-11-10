@@ -15,6 +15,8 @@ class MainWindow : public QMainWindow
 
     public:
   MainWindow();
+  static MainWindow* instance();
+  CentralWindow *centralWindow;
 
  protected:
   void closeEvent(QCloseEvent *event);
@@ -24,32 +26,16 @@ class MainWindow : public QMainWindow
   void about();
 
  private:
+  static MainWindow* instance_;
   void createActions();
   void createMenus();
   void createStatusBar();
   
-  QString strippedName(const QString &fullFileName);
-
-  QPlainTextEdit *textEdit;
-  QString curFile;
-
-  CentralWindow *centralWindow;
-
   QMenu *fileMenu;
-  QMenu *editMenu;
   QMenu *helpMenu;
-  QToolBar *fileToolBar;
-  QToolBar *editToolBar;
-  QAction *newAct;
-  QAction *openAct;
-  QAction *saveAct;
-  QAction *saveAsAct;
   QAction *exitAct;
-  QAction *cutAct;
-  QAction *copyAct;
-  QAction *pasteAct;
   QAction *aboutAct;
-  QAction *aboutQtAct;
+
 };
 
 #endif

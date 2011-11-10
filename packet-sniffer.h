@@ -28,10 +28,11 @@ static PacketSniffer* instance();
   void term_sniffer(void);
   void select_packets(void);
 pcap_t *handle;
+  PacketSieve* sieve;
 
  private:
   static PacketSniffer* instance_;
-  PacketSieve* sieve;
+
 };
 
   void print_hex_ascii_line(const u_char *payload, int len, int offset);

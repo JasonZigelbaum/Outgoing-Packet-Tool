@@ -407,7 +407,7 @@ void PacketSniffer::select_packets(void) {
   // We are done training our packet engine, now lets loop, fire up the
   // target application, and try to find out what is might be.
   if (handle) {
-    pcap_dispatch(handle, num_packets, handle_target_packet, (u_char*) sieve);
+    pcap_loop(handle, 0, handle_target_packet, (u_char*) sieve);
     sieve->print_suspects();
     term_sniffer();
   } else {

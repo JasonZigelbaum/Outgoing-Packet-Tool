@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
   QFont newFont("Impact", 12, QFont::Bold);
   //set font of application
   QApplication::setFont(newFont);
+  QApplication::setQuitOnLastWindowClosed(false);
   MainWindow::instance()->show();
   return app.exec();
 }

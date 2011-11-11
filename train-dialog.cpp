@@ -93,7 +93,7 @@ void addToList() {
     stream << sieve->reverse_dns(iter->first) << " (" << iter->first << ")";
     std::cout << iter->first << " " << sieve->reverse_dns(iter->first)
               << " " << iter->second << std::endl;
-    MainWindow::instance()->centralWindow->addItem(stream.str());
+    MainWindow::instance()->centralWindow->listWidget->addItem(stream.str().c_str());
   }
 }
 

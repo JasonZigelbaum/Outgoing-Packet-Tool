@@ -10,28 +10,27 @@ class QLineEdit;
 class QLabel;
 class QPushButton;
 class QListView;
+class QListWidget;
 
-//const int NumGridRows = 3;
 
 class CentralWindow : public QWidget {
   Q_OBJECT
 
  public:
+  QListWidget* listWidget;
   CentralWindow();
   public slots:
   void train();
+  void attack();
   void writePrompt();
   void deletePrompt();
-  void addItem(std::string s);
-
 
  private:
-  QListView* listView;
-  QStandardItemModel * listModel;
   QPushButton* beginButton;
   QPushButton* trainButton;
   QPushButton* writeButton;
   QPushButton* deleteButton;
+  QPushButton* attackButton;
 
 
 

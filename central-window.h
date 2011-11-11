@@ -24,13 +24,16 @@ class CentralWindow : public QWidget {
   void deletePrompt();
   void addItem(std::string s);
 
+
  private:
+  QListView* listView;
+  QStandardItemModel * listModel;
   QPushButton* beginButton;
   QPushButton* trainButton;
   QPushButton* writeButton;
   QPushButton* deleteButton;
-  QListView* listView;
-  QStandardItemModel * listModel;
+
+
 
 
 

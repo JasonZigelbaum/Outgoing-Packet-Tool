@@ -80,26 +80,38 @@ void PacketSniffer::get_handle(void) {
     std::cout << "Dev: " << (void *) dev << std::endl;
   /* check for capture device name on command-line */
  
+    // Try default lookup first, then resort to hard-coded secondary option.
     dev = pcap_lookupdev(errbuf);
+    bool error = false;
     if (dev == NULL) {
       fprintf(stderr, "Couldn't find default device: %s\n",
     	      errbuf);
-     
-   
-    std::cout << "Dev: " << (void *) dev << std::endl;
-    string wifi = "wlan0";
-    dev = new char[1000];
-    strcpy(dev, wifi.c_str());
-    std::cout << "Device chosen: " << dev << std::endl;
+      error = true;
+    }
+    if (!error) {
+      if( pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
+	fprintf(stderr, "Couldn't get netmask for device %s: %s\n",
+		dev, errbuf);
+	net = 0;
+	mask = 0;
+        error = true;
+      }
+    }
+    if (error) {
+      string wifi = "wlan0";
+      dev = new char[1000];
+      strcpy(dev, wifi.c_str());
+      std::cout << "Device chosen: " << dev << std::endl;
+      if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
+	fprintf(stderr, "Couldn't get netmask for device %s: %s\n",
+		dev, errbuf);
+	net = 0;
+	mask = 0;
+      }
     }     
     //}
   /* get network number and mask associated with capture device */
-  if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
-    fprintf(stderr, "Couldn't get netmask for device %s: %s\n",
-	    dev, errbuf);
-    net = 0;
-    mask = 0;
-  }
+
   // We only want to capture outgoing packets, so we must find the local
   // IP address for use with a source filter.
   get_ip();
@@ -407,9 +419,10 @@ void PacketSniffer::select_packets(void) {
   // We are done training our packet engine, now lets loop, fire up the
   // target application, and try to find out what is might be.
   if (handle) {
+    std::cout << "about to loop" << std::endl;
     pcap_loop(handle, 0, handle_target_packet, (u_char*) sieve);
-    sieve->print_suspects();
-    term_sniffer();
+    //sieve->print_suspects();
+    //term_sniffer();
   } else {
     std::cout << "You need to run train first\n";
   }

@@ -16,6 +16,7 @@ class QProgressBar;
 
 void train();
 void assess();
+void addToList();
 
 class TrainDialog : public QDialog
 {
@@ -28,7 +29,8 @@ class TrainDialog : public QDialog
   void timerFired();
   void handleFinished();
   void doneAssessing();
-
+  void doneAddingToList();
+  
  private:
 
   QVBoxLayout* layout;

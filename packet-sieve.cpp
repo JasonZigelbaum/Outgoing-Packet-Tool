@@ -62,7 +62,7 @@ string PacketSieve::reverse_dns(std::string ip) {
   						       sockaddr), 
   			  hostname, sizeof(hostname), NULL,0,
   			  NI_NAMEREQD))) { 
-    return "N/A";
+    return "Unknown";
   } 
   return hostname;
 }

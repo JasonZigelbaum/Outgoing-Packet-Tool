@@ -15,7 +15,7 @@ CentralWindow::CentralWindow()
 {
   QGridLayout *layout = new QGridLayout;
 
-  beginButton = new QPushButton("Begin Crack");
+  beginButton = new QPushButton("Detect Target");
   connect(beginButton, SIGNAL(clicked()), this, SLOT(train()));
   
   layout->addWidget(beginButton, 4, 0, 2, 1);
@@ -39,7 +39,6 @@ CentralWindow::CentralWindow()
 
   listModel = new QStandardItemModel();
   listView->setModel(listModel );
-  addItem("what upp");
 
   setLayout(layout);
 }
@@ -56,7 +55,7 @@ void CentralWindow::addItem(std::string s) {
 
   QVariant variant(s.c_str());
   item->setData(variant, Qt::DisplayRole );
-  item->setData( QImage("images/copy.png"), Qt::DecorationRole );
+  // item->setData( QImage("images/copy.png"), Qt::DecorationRole );
   item->setEditable( false );   
  
   listModel->appendRow( item );

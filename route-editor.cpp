@@ -10,8 +10,9 @@ using namespace std;
 
 bool RouteEditor::addRouteEntry(std::string ip) {
 	string cmnd = "route add " + ip + " 127.0.0.1";
-	char* c = &cmnd[0];
-	if(system(c) == 0) {
+	//char* c = &cmnd[0];
+	std::cout << "Command: " << cmnd << std::endl;
+	if(system(cmnd.c_str()) == 0) {
 		cout << "route" << ip << "successfully added!" << endl;
 		return true;
 	}
@@ -26,6 +27,6 @@ bool RouteEditor::deleteRouteEntry(std::string ip) {
 		cout << "route" << ip << "successfully deleted!" << endl;
 		return true;
 	}
-	cout << "route" << ip << "failed to be deleted." << endl;
+	cout << "Route " << ip << " failed to be deleted." << endl;
 	return false;
 }

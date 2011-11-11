@@ -40,8 +40,7 @@ class TrainDialog : public QDialog
   QProgressBar* progressBar;
   QTimer* timer;
 
-  QFutureWatcher<void> watcher;
-  QFuture<void> future;
+  QFutureWatcher<void>* watcher;
 
 };
 

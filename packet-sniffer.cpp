@@ -410,6 +410,7 @@ void PacketSniffer::fill_packet_sieve(void) {
      this will also fill our packet sieve for the proceeding loop.
   */
   sieve = new PacketSieve();
+  std::cout << "Looping from PacketSieve." << std::endl;
   pcap_loop(handle, 0, got_packet, (u_char*) sieve);
   std::cout << "LOOP BROKEN" << std::endl;
 }
@@ -419,7 +420,7 @@ void PacketSniffer::select_packets(void) {
   // We are done training our packet engine, now lets loop, fire up the
   // target application, and try to find out what is might be.
   if (handle) {
-    std::cout << "about to loop" << std::endl;
+    std::cout << "Looping from select_packets." << std::endl;
     pcap_loop(handle, 0, handle_target_packet, (u_char*) sieve);
     //sieve->print_suspects();
     //term_sniffer();

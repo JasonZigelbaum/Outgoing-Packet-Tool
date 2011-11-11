@@ -35,10 +35,10 @@ void TrainDialog::beginTraining() {
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(timerFired()));
   timer->start(1000);
-
-  connect(&watcher, SIGNAL(finished()), this, SLOT(handleFinished()));
+  watcher = new QFutureWatcher<void>();
+  connect(watcher, SIGNAL(finished()), this, SLOT(handleFinished()));
   QFuture<void> future = QtConcurrent::run(train);
-  watcher.setFuture(future);
+  watcher->setFuture(future);
 }
 
 void TrainDialog::timerFired() {
@@ -57,18 +57,22 @@ void TrainDialog::doneAssessing() {
   trainLabel->setText("Loading suspect hosts...");
   trainLabel->update();
   trainLabel->repaint();
-  connect(&watcher, SIGNAL(finished()), this, SLOT(doneAddingToList()));
+  watcher = new QFutureWatcher<void>();
+  connect(watcher, SIGNAL(finished()), this, SLOT(doneAddingToList()));
   QFuture<void> future = QtConcurrent::run(addToList);
-  watcher.setFuture(future);
+  watcher->setFuture(future);
 }
 
 void TrainDialog::doneAddingToList() {
+  delete watcher;
   done(0);
 }
 
 
 void TrainDialog::handleFinished() {
+  delete watcher;
   std::cout << "Thread finished." << std::endl;
+
   timer->stop();
   trainLabel->setText("Now turn on the target application and wait until it attempts\nauthentication.  Hit the button below when this step is completed.");
   progressBar->setVisible(false);

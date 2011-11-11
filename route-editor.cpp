@@ -13,7 +13,7 @@ bool RouteEditor::addRouteEntry(std::string ip) {
 	//char* c = &cmnd[0];
 	std::cout << "Command: " << cmnd << std::endl;
 	if(system(cmnd.c_str()) == 0) {
-		cout << "route" << ip << "successfully added!" << endl;
+		cout << "route " << ip << " successfully added!" << endl;
 		return true;
 	}
 	cout << "route" << ip << "failed to be added." << endl;
@@ -24,7 +24,7 @@ bool RouteEditor::deleteRouteEntry(std::string ip) {
 	string cmnd = "route delete " + ip;
 	char* c = &cmnd[0];
 	if(system(c) == 0) {
-		cout << "route" << ip << "successfully deleted!" << endl;
+		cout << "route " << ip << " successfully deleted!" << endl;
 		return true;
 	}
 	cout << "Route " << ip << " failed to be deleted." << endl;

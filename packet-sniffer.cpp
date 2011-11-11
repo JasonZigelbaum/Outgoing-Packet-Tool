@@ -102,6 +102,12 @@ void PacketSniffer::get_handle(void) {
       dev = new char[1000];
       strcpy(dev, wifi.c_str());
       std::cout << "Device chosen: " << dev << std::endl;
+    if (error) {
+      string wifi = "en1";
+      dev = new char[1000];
+      strcpy(dev, wifi.c_str());
+      std::cout << "Device chosen: " << dev << std::endl;
+    }
       if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
 	fprintf(stderr, "Couldn't get netmask for device %s: %s\n",
 		dev, errbuf);

@@ -10,7 +10,7 @@
 #include "central-window.h"
 
 
-const int TRAIN_TIME_S = 5;
+const int TRAIN_TIME_S = 100;
 
 TrainDialog::TrainDialog()
 {

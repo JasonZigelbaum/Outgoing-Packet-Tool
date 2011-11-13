@@ -9,8 +9,8 @@ INCLUDEPATH += .
 
 # Input
 
-HEADERS += main-window.h central-window.h packet-sniffer.h packet-sieve.h train-dialog.h write-dialog.h delete-dialog.h attack-dialog.h route-editor.h
-SOURCES += globals.cpp main-window.cpp central-window.cpp main.cpp packet-sniffer.cpp packet-sieve.cpp train-dialog.cpp write-dialog.cpp delete-dialog.cpp attack-dialog.cpp route-editor.cpp
+HEADERS += main-window.h central-window.h packet-sniffer.h packet-sieve.h train-dialog.h write-dialog.h delete-dialog.h attack-dialog.h route-editor.h password-window.h
+SOURCES += globals.cpp main-window.cpp central-window.cpp main.cpp packet-sniffer.cpp packet-sieve.cpp train-dialog.cpp write-dialog.cpp delete-dialog.cpp attack-dialog.cpp route-editor.cpp password-window.cpp
 
 RESOURCES = application.qrc
-LIBS += -ldl -lpcap
+LIBS += -ldl -lpcap -lcurl

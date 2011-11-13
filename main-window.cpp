@@ -2,6 +2,7 @@
 
 #include "main-window.h"
 #include "central-window.h"
+#include "password-window.h"
 
 // Using singleton design pattern.
 MainWindow* MainWindow::instance_ = NULL;
@@ -16,7 +17,11 @@ MainWindow* MainWindow::instance() {
 MainWindow::MainWindow()
 {
   centralWindow = new CentralWindow(); 
-  setCentralWidget(centralWindow);
+  passwordWindow = new PasswordWindow();
+  tabWidget = new QTabWidget();
+  tabWidget->addTab(centralWindow, "Software Authentication");
+  tabWidget->addTab(passwordWindow, "Password Sniffing");
+  setCentralWidget(tabWidget);
 
   createActions();
   createMenus();

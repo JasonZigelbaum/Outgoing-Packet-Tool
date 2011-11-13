@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QtGui>
 
+class PasswordWindow;
 class QAction;
 class QMenu;
 class QPlainTextEdit;
@@ -17,6 +18,8 @@ class MainWindow : public QMainWindow
   MainWindow();
   static MainWindow* instance();
   CentralWindow *centralWindow;
+  PasswordWindow* passwordWindow;
+  QTabWidget* tabWidget;
 
  protected:
   void closeEvent(QCloseEvent *event);

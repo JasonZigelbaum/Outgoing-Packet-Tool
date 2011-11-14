@@ -81,7 +81,6 @@ void PacketSniffer::get_handle(std::string filter) {
   bpf_u_int32 mask;           /* subnet mask */
   bpf_u_int32 net;            /* ip */
     
-    std::cout << "Dev: " << (void *) dev << std::endl;
   /* check for capture device name on command-line */
  
     // Try default lookup first, then resort to hard-coded secondary option.
@@ -106,12 +105,12 @@ void PacketSniffer::get_handle(std::string filter) {
       dev = new char[1000];
       strcpy(dev, wifi.c_str());
       std::cout << "Device chosen: " << dev << std::endl;
-    if (error) {
-      string wifi = "en1";
-      dev = new char[1000];
-      strcpy(dev, wifi.c_str());
-      std::cout << "Device chosen: " << dev << std::endl;
-    }
+    // if (error) {
+    //   string wifi = "en1";
+    //   dev = new char[1000];
+    //   strcpy(dev, wifi.c_str());
+    //   std::cout << "Device chosen: " << dev << std::endl;
+    // }
       if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1) {
 	fprintf(stderr, "Couldn't get netmask for device %s: %s\n",
 		dev, errbuf);
@@ -532,7 +531,6 @@ void handle_password_packet(u_char * args, const struct pcap_pkthdr *,
   } else {
     // If its an outgoing packet, if its part of a potential password
     // communication then inspect it
-    std::cout << "Outgoing." << std::endl;
     PasswordMap::iterator iter;
     // Look up host in known hosts map
     iter = sniffer->password_map_.find(inet_ntoa(ip->ip_dst));
@@ -540,14 +538,12 @@ void handle_password_packet(u_char * args, const struct pcap_pkthdr *,
     if (iter == sniffer->password_map_.end() || iter->second == 0) {
       return;
     }
-    std::cout << "here2" << std::endl;
   
     string password = find_password(payload, size_payload);
     if (password.empty()) {
       return;
     }
 
-    std::cout << "here3" << std::endl;
     std::string list_string = iter->second->data(0).toString().toStdString();
 
     list_string.append(" ");
@@ -569,17 +565,11 @@ void handle_password_packet(u_char * args, const struct pcap_pkthdr *,
       return;
     }
 
-
-
-
     // Kind of a hack, we want to mark this IP so we don't do a password look
     // up on it ever again, so here we set its list widget pointer to 0.
     sniffer->password_map_.insert(std::pair<std::string, QListWidgetItem*>
 				  (inet_ntoa(ip->ip_dst), 0));
 
-
-    exit(0);
- 
 
   }
     
@@ -593,16 +583,15 @@ void PacketSniffer::fill_packet_sieve(void) {
   filter_stream << "ip src host ";
   filter_stream << tmpIpAddress;
   filter_stream << " and not udp";
-  std::cout << "Local host IP Address is " << filter_stream.str() << std::endl;
   get_handle(filter_stream.str());
     
   /* now we can set our callback function 
      this will also fill our packet sieve for the proceeding loop.
   */
   sieve = new PacketSieve();
-  std::cout << "Looping from PacketSieve." << std::endl;
+
   pcap_loop(handle, 0, handle_training_packet, (u_char*) sieve);
-  std::cout << "LOOP BROKEN" << std::endl;
+
 }
 
 void PacketSniffer::select_packets(void) {
@@ -610,7 +599,6 @@ void PacketSniffer::select_packets(void) {
   // We are done training our packet engine, now lets loop, fire up the
   // target application, and try to find out what is might be.
   if (handle) {
-    std::cout << "Looping from select_packets." << std::endl;
     pcap_loop(handle, 0, handle_target_packet, (u_char*) sieve);
     //sieve->print_suspects();
     //term_snifferpassowr();
@@ -625,7 +613,7 @@ void PacketSniffer::sniff_passwords() {
   get_handle("ip and not udp");
   sieve = new PacketSieve();
   pcap_loop(handle, 0, handle_password_packet, (u_char*) this);
-  std::cout << "LOOP BROKEN" << std::endl;
+
 }
 
 void PacketSniffer::term_sniffer(void) {

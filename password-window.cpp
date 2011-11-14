@@ -39,11 +39,11 @@ PasswordWindow::PasswordWindow()
   listWidget = new QListWidget;
   listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
   layout->addWidget(listWidget, 0, 1, 10, 1);
-  for (int i = 0; i < 5; ++i) {
-    std::stringstream s;
-    s << "hostname (148.222.1." << i << ")";
-    listWidget->addItem(s.str().c_str());
-  }
+  // for (int i = 0; i < 5; ++i) {
+  //   std::stringstream s;
+  //   s << "hostname (148.222.1." << i << ")";
+  //   listWidget->addItem(s.str().c_str());
+  // }
 
   layout->setColumnStretch(0, 10);
   layout->setColumnStretch(1, 30);
